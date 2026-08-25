@@ -1,3 +1,4 @@
+import UploadForm from "@/components/forms/UploadForm";
 import { Button } from "@/components/ui/button";
 import { createFileRoute } from "@tanstack/react-router";
 
@@ -10,6 +11,8 @@ function Index() {
     <div className="p-2">
       <h3>Welcome Home!</h3>
       <Button>Click me</Button>
+
+      <UploadForm />
     </div>
   );
 }
