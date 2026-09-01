@@ -7,10 +7,20 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  async function handleTest() {
+    try {
+      const res = await fetch("http://localhost:8000/health");
+      const data = await res.json();
+      console.log(data);
+    } catch (err: Error | unknown) {
+      console.error(err);
+    }
+  }
+
   return (
     <div className="p-2">
       <h3>Welcome Home!</h3>
-      <Button>Click me</Button>
+      <Button onClick={handleTest}>Click me</Button>
 
       <UploadForm />
     </div>
