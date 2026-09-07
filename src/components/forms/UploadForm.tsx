@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { uploadPdf } from "@/api/query";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
@@ -20,10 +21,11 @@ const pdfSchema = z
   .file({
     message: "Please select a PDF file.",
   })
-  .refine((file) => file.type === "application/pdf", {
+  .nullable()
+  .refine((file) => file === null || file.type === "application/pdf", {
     message: "Only PDF files are allowed.",
   })
-  .refine((file) => file.size <= MAX_FILE_SIZE, {
+  .refine((file) => file === null || file.size <= MAX_FILE_SIZE, {
     message: "The PDF must be smaller than 10 MB.",
   });
 
@@ -37,37 +39,6 @@ type UploadResponse = {
   message?: string;
   [key: string]: unknown;
 };
-
-async function uploadPdf(file: File): Promise<UploadResponse> {
-  const formData = new FormData();
-
-  formData.append("files", file);
-
-  const response = await fetch("http://localhost:8000/upload", {
-    method: "POST",
-    body: formData,
-  });
-
-  if (!response.ok) {
-    let message = `Upload failed with status ${response.status}.`;
-
-    try {
-      const error = await response.json();
-
-      if (typeof error?.detail === "string") {
-        message = error.detail;
-      } else if (typeof error?.message === "string") {
-        message = error.message;
-      }
-    } catch {
-      // Keep the default HTTP error message when the response isn't JSON.
-    }
-
-    throw new Error(message);
-  }
-
-  return response.json();
-}
 
 const UploadForm = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -86,6 +57,10 @@ const UploadForm = () => {
       const result = uploadSchema.safeParse(value);
 
       if (!result.success) {
+        return;
+      }
+
+      if (result.data.file === null) {
         return;
       }
 
@@ -128,6 +103,9 @@ const UploadForm = () => {
               name="file"
               validators={{
                 onChange: ({ value }) => {
+                  if (value === null) {
+                    return "Please select a PDF file.";
+                  }
                   const result = uploadSchema.shape.file.safeParse(value);
 
                   return result.success
@@ -135,6 +113,9 @@ const UploadForm = () => {
                     : result.error.issues[0]?.message;
                 },
                 onSubmit: ({ value }) => {
+                  if (value === null) {
+                    return "Please select a PDF file.";
+                  }
                   const result = uploadSchema.shape.file.safeParse(value);
 
                   return result.success

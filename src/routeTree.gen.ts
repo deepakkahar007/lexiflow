@@ -11,7 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
-import { Route as NotebookRouteImport } from './routes/notebook'
+import { Route as NotebookRouteRouteImport } from './routes/notebook/route'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as NotebookIndexRouteImport } from './routes/notebook/index'
@@ -29,7 +29,7 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
-const NotebookRoute = NotebookRouteImport.update({
+const NotebookRouteRoute = NotebookRouteRouteImport.update({
   id: '/notebook',
   path: '/notebook',
   getParentRoute: () => rootRouteImport,
@@ -47,12 +47,12 @@ const AuthRegisterRoute = AuthRegisterRouteImport.update({
 const NotebookIndexRoute = NotebookIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => NotebookRoute,
+  getParentRoute: () => NotebookRouteRoute,
 } as any)
 const NotebookIdRoute = NotebookIdRouteImport.update({
   id: '/$id',
   path: '/$id',
-  getParentRoute: () => NotebookRoute,
+  getParentRoute: () => NotebookRouteRoute,
 } as any)
 const AuthAuthLoginRoute = AuthAuthLoginRouteImport.update({
   id: '/auth/auth/login',
@@ -67,8 +67,8 @@ const AuthAuthRegisterRoute = AuthAuthRegisterRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/notebook': typeof NotebookRouteRouteWithChildren
   '/about': typeof AboutRoute
-  '/notebook': typeof NotebookRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/notebook/$id': typeof NotebookIdRoute
@@ -89,8 +89,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/notebook': typeof NotebookRouteRouteWithChildren
   '/about': typeof AboutRoute
-  '/notebook': typeof NotebookRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
   '/notebook/$id': typeof NotebookIdRoute
@@ -102,8 +102,8 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/about'
     | '/notebook'
+    | '/about'
     | '/auth/login'
     | '/auth/register'
     | '/notebook/$id'
@@ -123,8 +123,8 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/about'
     | '/notebook'
+    | '/about'
     | '/auth/login'
     | '/auth/register'
     | '/notebook/$id'
@@ -135,8 +135,8 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  NotebookRouteRoute: typeof NotebookRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
-  NotebookRoute: typeof NotebookRouteWithChildren
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
   AuthAuthLoginRoute: typeof AuthAuthLoginRoute
@@ -163,7 +163,7 @@ declare module '@tanstack/react-router' {
       id: '/notebook'
       path: '/notebook'
       fullPath: '/notebook'
-      preLoaderRoute: typeof NotebookRouteImport
+      preLoaderRoute: typeof NotebookRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/login': {
@@ -185,14 +185,14 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/notebook/'
       preLoaderRoute: typeof NotebookIndexRouteImport
-      parentRoute: typeof NotebookRoute
+      parentRoute: typeof NotebookRouteRoute
     }
     '/notebook/$id': {
       id: '/notebook/$id'
       path: '/$id'
       fullPath: '/notebook/$id'
       preLoaderRoute: typeof NotebookIdRouteImport
-      parentRoute: typeof NotebookRoute
+      parentRoute: typeof NotebookRouteRoute
     }
     '/auth/auth/login': {
       id: '/auth/auth/login'
@@ -211,24 +211,24 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface NotebookRouteChildren {
+interface NotebookRouteRouteChildren {
   NotebookIdRoute: typeof NotebookIdRoute
   NotebookIndexRoute: typeof NotebookIndexRoute
 }
 
-const NotebookRouteChildren: NotebookRouteChildren = {
+const NotebookRouteRouteChildren: NotebookRouteRouteChildren = {
   NotebookIdRoute: NotebookIdRoute,
   NotebookIndexRoute: NotebookIndexRoute,
 }
 
-const NotebookRouteWithChildren = NotebookRoute._addFileChildren(
-  NotebookRouteChildren,
+const NotebookRouteRouteWithChildren = NotebookRouteRoute._addFileChildren(
+  NotebookRouteRouteChildren,
 )
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  NotebookRouteRoute: NotebookRouteRouteWithChildren,
   AboutRoute: AboutRoute,
-  NotebookRoute: NotebookRouteWithChildren,
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,
   AuthAuthLoginRoute: AuthAuthLoginRoute,
