@@ -12,55 +12,21 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { userLogin } from "@/api/query";
+import { Link, redirect } from "@tanstack/react-router";
 
 const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email address."),
+  email: z.email("Please enter a valid email address."),
   password: z.string().min(1, "Please enter your password."),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-type LoginResponse = {
-  status?: string;
-  token?: string;
-  [key: string]: unknown;
-};
-
-async function loginUser(values: LoginFormValues): Promise<LoginResponse> {
-  const response = await fetch("http://localhost:8000/auth/login", {
-    method: "POST",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(values),
-  });
-
-  if (!response.ok) {
-    let message = `Login failed with status ${response.status}.`;
-
-    try {
-      const error = await response.json();
-
-      if (typeof error?.detail === "string") {
-        message = error.detail;
-      } else if (typeof error?.message === "string") {
-        message = error.message;
-      }
-    } catch {
-      // Keep the default HTTP error message when the response isn't JSON.
-    }
-
-    throw new Error(message);
-  }
-
-  return response.json();
-}
-
 const LoginForm = () => {
   const loginMutation = useMutation({
     mutationKey: ["login-user"],
-    mutationFn: loginUser,
+    mutationFn: async (params: { email: string; password: string }) =>
+      await userLogin(params.email, params.password),
     onSuccess: (data) => {
       console.log(data);
     },
@@ -78,8 +44,14 @@ const LoginForm = () => {
         return;
       }
 
-      const response = await loginMutation.mutateAsync(result.data);
-      console.log("response ", response);
+      const response = await loginMutation.mutateAsync({
+        email: result.data.email,
+        password: result.data.password,
+      });
+
+      if (response.status) {
+        redirect({ to: "/notebook" });
+      }
     },
   });
 
@@ -87,9 +59,7 @@ const LoginForm = () => {
     <Card className="w-full max-w-md">
       <CardHeader>
         <CardTitle>Sign in to your account</CardTitle>
-        <CardDescription>
-          Enter your credentials to log in.
-        </CardDescription>
+        <CardDescription>Enter your credentials to log in.</CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -193,6 +163,12 @@ const LoginForm = () => {
             {loginMutation.isPending ? "Signing in..." : "Log in"}
           </Button>
         </form>
+
+        <hr />
+
+        <Link to="/auth/register">
+          <Button>Register</Button>
+        </Link>
       </CardContent>
     </Card>
   );

@@ -1,6 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -245,6 +245,12 @@ const RegisterUserForm = () => {
             {registerMutation.isPending ? "Registering..." : "Register"}
           </Button>
         </form>
+
+        <hr />
+
+        <Link to="/auth/login">
+          <Button>Login</Button>
+        </Link>
       </CardContent>
     </Card>
   );

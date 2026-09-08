@@ -1,6 +1,5 @@
-import CreateNotebookForm from "@/components/forms/CreateNotebookForm";
-import UploadForm from "@/components/forms/UploadForm";
-import { createFileRoute } from "@tanstack/react-router";
+import { Button } from "@/components/ui/button";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -9,11 +8,9 @@ export const Route = createFileRoute("/")({
 function Index() {
   return (
     <div className="p-2">
-      <h3>Welcome Home!</h3>
-
-      <CreateNotebookForm />
-
-      <UploadForm />
+      <Link to="/auth/register">
+        <Button>Go To Auth</Button>
+      </Link>
     </div>
   );
 }

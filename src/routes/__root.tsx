@@ -6,23 +6,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 const RootLayout = () => (
   <TooltipProvider>
     <div className="container mx-auto p-2 h-screen border border-x">
-      <div className="p-2 flex gap-2">
-        <Link to="/" className="[&.active]:font-bold">
-          Home
-        </Link>{" "}
-        <Link to="/about" className="[&.active]:font-bold">
-          About
-        </Link>{" "}
-        <Link to="/auth/register" className="[&.active]:font-bold">
-          Register
-        </Link>{" "}
-        <Link to="/auth/login" className="[&.active]:font-bold">
-          Login
-        </Link>{" "}
-        <Link to="/notebook" className="[&.active]:font-bold">
-          Notebooks
-        </Link>
-      </div>
       <hr />
       <Outlet />
       <TanStackRouterDevtools />

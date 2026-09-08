@@ -14,3 +14,23 @@ export const uploadPdf = async (file: File) => {
   });
   return await res.json();
 };
+
+type LoginResponse = {
+  status?: string;
+  token?: string;
+  [key: string]: unknown;
+};
+
+export const userLogin = async (
+  email: string,
+  password: string,
+): Promise<LoginResponse> => {
+  const res = await fetch(`${env.VITE_SERVER_URL}/auth/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email, password }),
+  });
+  return await res.json();
+};
