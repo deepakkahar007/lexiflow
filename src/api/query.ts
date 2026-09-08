@@ -1,4 +1,5 @@
 import { env } from "@/lib/env";
+import type { AllNotebookResponseType } from "./apiResponseType";
 
 export const getHome = async () => {
   const res = await fetch(`${env.VITE_SERVER_URL}/health`);
@@ -30,7 +31,34 @@ export const userLogin = async (
     headers: {
       "Content-Type": "application/json",
     },
+    credentials: "include",
     body: JSON.stringify({ email, password }),
+  });
+  return await res.json();
+};
+
+export const userLogout = async () => {
+  const res = await fetch(`${env.VITE_SERVER_URL}/auth/logout`, {
+    method: "POST",
+    credentials: "include",
+  });
+  return await res.json();
+};
+
+export const getAllNotebooksById = async (
+  id: string | undefined = "54c16a38-5309-4ee4-8747-4a2beb125660",
+): Promise<AllNotebookResponseType[]> => {
+  const res = await fetch(`${env.VITE_SERVER_URL}/notebook/${id}`, {
+    method: "GET",
+    credentials: "include",
+  });
+  return await res.json();
+};
+
+export const deleteNotebookById = async (id: string) => {
+  const res = await fetch(`${env.VITE_SERVER_URL}/notebook/${id}`, {
+    method: "DELETE",
+    credentials: "include",
   });
   return await res.json();
 };

@@ -1,5 +1,3 @@
-import LeftSideView from "@/components/layout/LeftSideView";
-import RightSideView from "@/components/layout/RightSideView";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/notebook")({
@@ -8,16 +6,11 @@ export const Route = createFileRoute("/notebook")({
 
 function RouteComponent() {
   return (
-    <div className="flex h-screen">
-      {/* Sidebar */}
-      <LeftSideView />
-
+    <div>
       {/* Main content */}
-      <main className="flex-1">
+      <div className="flex-1">
         <Outlet />
-      </main>
-
-      <RightSideView />
+      </div>
     </div>
   );
 }

@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { userLogin } from "@/api/query";
-import { Link, redirect } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 
 const loginSchema = z.object({
   email: z.email("Please enter a valid email address."),
@@ -23,12 +23,13 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 const LoginForm = () => {
+  const navigate = useNavigate();
   const loginMutation = useMutation({
     mutationKey: ["login-user"],
     mutationFn: async (params: { email: string; password: string }) =>
       await userLogin(params.email, params.password),
     onSuccess: (data) => {
-      console.log(data);
+      console.log("mutate success", data);
     },
   });
 
@@ -50,7 +51,9 @@ const LoginForm = () => {
       });
 
       if (response.status) {
-        redirect({ to: "/notebook" });
+        navigate({
+          to: "/notebook",
+        });
       }
     },
   });
