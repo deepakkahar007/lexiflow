@@ -1,16 +1,18 @@
 import { useState } from "react";
-import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { z } from "zod";
+import { Loader2Icon, UploadIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { uploadPdf } from "@/api/query";
@@ -29,152 +31,89 @@ const pdfSchema = z
     message: "The PDF must be smaller than 10 MB.",
   });
 
-const uploadSchema = z.object({
-  file: pdfSchema,
-});
-
-type UploadFormValues = z.infer<typeof uploadSchema>;
-
-type UploadResponse = {
-  message?: string;
-  [key: string]: unknown;
-};
-
 const UploadForm = () => {
+  const [open, setOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const uploadMutation = useMutation({
     mutationKey: ["upload-document"],
     mutationFn: uploadPdf,
-  });
-
-  const form = useForm({
-    defaultValues: {
-      file: null as File | null,
-    } satisfies UploadFormValues,
-    onSubmit: async ({ value }) => {
-      console.log(value);
-      const result = uploadSchema.safeParse(value);
-
-      if (!result.success) {
-        return;
-      }
-
-      if (result.data.file === null) {
-        return;
-      }
-
-      const response = await uploadMutation.mutateAsync(result.data.file);
-      console.log("response ", response);
+    onSuccess: () => {
+      setOpen(false);
+      setSelectedFile(null);
+      setError(null);
     },
   });
 
-  const handleFileChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    field: {
-      handleChange: (value: File | null) => void;
-    },
-  ) => {
-    const file = event.target.files?.[0] ?? null;
+  const handleUpload = () => {
+    const result = pdfSchema.safeParse(selectedFile);
 
-    setSelectedFile(file);
-    uploadMutation.reset();
-    field.handleChange(file);
+    if (!result.success) {
+      setError(result.error.issues[0]?.message ?? "Invalid file.");
+      return;
+    }
+
+    setError(null);
+    uploadMutation.mutate(result.data!);
   };
 
   return (
-    <div>
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Upload PDF</CardTitle>
-          <CardDescription>Select a PDF document to upload.</CardDescription>
-        </CardHeader>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger render={<Button />}>
+        <UploadIcon className="mr-2 size-4" />
+        Upload Document
+      </DialogTrigger>
 
-        <CardContent>
-          <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              form.handleSubmit();
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Upload PDF</DialogTitle>
+          <DialogDescription>
+            Select a PDF document to upload.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-2">
+          <Label htmlFor="file">PDF document</Label>
+
+          <Input
+            id="file"
+            type="file"
+            accept="application/pdf,.pdf"
+            disabled={uploadMutation.isPending}
+            onChange={(event) => {
+              setSelectedFile(event.target.files?.[0] ?? null);
+              setError(null);
+              uploadMutation.reset();
             }}
-            className="space-y-6"
+          />
+
+          {selectedFile && (
+            <p className="text-sm text-muted-foreground">
+              Selected: {selectedFile.name}
+            </p>
+          )}
+
+          {(error || uploadMutation.isError) && (
+            <p className="text-sm text-destructive">
+              {error ?? uploadMutation.error?.message}
+            </p>
+          )}
+        </div>
+
+        <DialogFooter>
+          <Button
+            onClick={handleUpload}
+            disabled={!selectedFile || uploadMutation.isPending}
           >
-            <form.Field
-              name="file"
-              validators={{
-                onChange: ({ value }) => {
-                  if (value === null) {
-                    return "Please select a PDF file.";
-                  }
-                  const result = uploadSchema.shape.file.safeParse(value);
-
-                  return result.success
-                    ? undefined
-                    : result.error.issues[0]?.message;
-                },
-                onSubmit: ({ value }) => {
-                  if (value === null) {
-                    return "Please select a PDF file.";
-                  }
-                  const result = uploadSchema.shape.file.safeParse(value);
-
-                  return result.success
-                    ? undefined
-                    : result.error.issues[0]?.message;
-                },
-              }}
-            >
-              {(field) => (
-                <div className="space-y-2">
-                  <Label htmlFor={field.name}>PDF document</Label>
-
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    type="file"
-                    accept="application/pdf,.pdf"
-                    disabled={uploadMutation.isPending}
-                    onChange={(event) => handleFileChange(event, field)}
-                  />
-
-                  {selectedFile && (
-                    <p className="text-sm text-muted-foreground">
-                      Selected: {selectedFile.name}
-                    </p>
-                  )}
-
-                  {field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-destructive">
-                      {field.state.meta.errors[0]}
-                    </p>
-                  )}
-                </div>
-              )}
-            </form.Field>
-
-            {uploadMutation.isSuccess && (
-              <p className="text-sm text-green-600">
-                {uploadMutation.data?.message ?? "PDF uploaded successfully."}
-              </p>
-            )}
-
-            {uploadMutation.isError && (
-              <p className="text-sm text-destructive">
-                {uploadMutation.error.message}
-              </p>
-            )}
-
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={uploadMutation.isPending}
-            >
-              {uploadMutation.isPending ? "Uploading..." : "Upload PDF"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+            {uploadMutation.isPending ? (
+              <Loader2Icon className="mr-2 size-4 animate-spin" />
+            ) : null}
+            {uploadMutation.isPending ? "Uploading..." : "Upload PDF"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 
