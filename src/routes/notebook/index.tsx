@@ -50,7 +50,11 @@ function NotebookIndex() {
                 <Link to="/notebook/$id" params={{ id: item.id }}>
                   <Button>{item.name}</Button>
                 </Link>
-                <Button onClick={() => mutate(item.id)} disabled={isPending}>
+                <Button
+                  onClick={() => mutate(item.id)}
+                  variant={"destructive"}
+                  disabled={isPending}
+                >
                   Delete
                 </Button>
               </div>

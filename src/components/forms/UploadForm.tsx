@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { Loader2Icon, UploadIcon } from "lucide-react";
 
@@ -32,6 +32,7 @@ const pdfSchema = z
   });
 
 const UploadForm = () => {
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -43,6 +44,7 @@ const UploadForm = () => {
       setOpen(false);
       setSelectedFile(null);
       setError(null);
+      queryClient.invalidateQueries({ queryKey: ["notebooks"] });
     },
   });
 
