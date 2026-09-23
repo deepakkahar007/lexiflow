@@ -46,7 +46,7 @@ export const userLogout = async () => {
 };
 
 export const getAllNotebooksById = async (
-  id: string | undefined = "54c16a38-5309-4ee4-8747-4a2beb125660",
+  id: string | undefined = "9d527de0-ec93-478b-b6b3-798727e26739",
 ): Promise<AllNotebookResponseType[]> => {
   const res = await fetch(`${env.VITE_SERVER_URL}/notebook/${id}`, {
     method: "GET",

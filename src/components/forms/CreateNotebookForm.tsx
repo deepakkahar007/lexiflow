@@ -35,7 +35,7 @@ async function createNotebook(
   values: NotebookFormValues,
 ): Promise<CreateNotebookResponse> {
   const body = {
-    user_id: "54c16a38-5309-4ee4-8747-4a2beb125660",
+    user_id: "9d527de0-ec93-478b-b6b3-798727e26739",
     ...values,
   };
 
