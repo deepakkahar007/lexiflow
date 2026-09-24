@@ -6,24 +6,16 @@ import UploadForm from "../forms/UploadForm";
 const LeftSideView = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["notebooks"],
-    queryFn: () => getAllNotebooksById("54c16a38-5309-4ee4-8747-4a2beb125660"),
+    queryFn: () => getAllNotebooksById("bf906298-12b3-4c67-ae95-f4fc4be1a953"),
   });
+
+  console.log(data);
 
   return (
     <div className="w-64 border-r">
       <p>LeftSideView</p>
 
       {isLoading && <p>Loading...</p>}
-
-      {data && (
-        <div>
-          {data.map((notebook) => (
-            <div key={notebook.id}>
-              <h2>{notebook.name}</h2>
-            </div>
-          ))}
-        </div>
-      )}
 
       <UploadForm />
 
