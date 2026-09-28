@@ -1,18 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import CreateNotebookForm from "@/components/forms/CreateNotebookForm";
-import { deleteNotebookById, getAllNotebooksById } from "@/api/query";
+import { deleteNotebookById, getAllNotebookByUserId } from "@/api/query";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { getUser } from "@/api/query";
 
 export const Route = createFileRoute("/notebook/")({
   component: NotebookIndex,
+  beforeLoad: async () => {
+    const res = await getUser();
+    console.log(res);
+  },
 });
 
 function NotebookIndex() {
   const queryClient = useQueryClient();
   const { data, isLoading } = useQuery({
     queryKey: ["notebooks"],
-    queryFn: () => getAllNotebooksById(),
+    queryFn: () => getAllNotebookByUserId(),
   });
 
   const { mutate, isPending } = useMutation({
@@ -35,13 +40,13 @@ function NotebookIndex() {
         <CreateNotebookForm />
       </div>
 
-      {data?.length === 0 ? (
+      {data?.notebook.length === 0 ? (
         <div className="my-4">
           <p>No notebooks found</p>
         </div>
       ) : (
         <div>
-          {data?.map((item, index) => {
+          {data?.notebook.map((item, index) => {
             return (
               <div
                 key={index}

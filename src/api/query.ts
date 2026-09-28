@@ -45,6 +45,14 @@ export const userLogout = async () => {
   return await res.json();
 };
 
+export const getUser = async () => {
+  const res = await fetch(`${env.VITE_SERVER_URL}/auth/me`, {
+    method: "GET",
+    credentials: "include",
+  });
+  return await res.json();
+};
+
 export const getAllNotebooksById = async (
   id: string | undefined = "bf906298-12b3-4c67-ae95-f4fc4be1a953",
 ): Promise<AllNotebookResponseType[]> => {
@@ -58,6 +66,28 @@ export const getAllNotebooksById = async (
 export const deleteNotebookById = async (id: string) => {
   const res = await fetch(`${env.VITE_SERVER_URL}/notebook/${id}`, {
     method: "DELETE",
+    credentials: "include",
+  });
+  return await res.json();
+};
+
+type GetAllNotebookByUserIdResponse = {
+  status: boolean;
+  message: string;
+  count: number;
+  notebook: {
+    id: string;
+    name: string;
+    description: string;
+    updated_at: string;
+  }[];
+};
+
+export const getAllNotebookByUserId = async (
+  id: string = "9d527de0-ec93-478b-b6b3-798727e26739",
+): Promise<GetAllNotebookByUserIdResponse> => {
+  const res = await fetch(`${env.VITE_SERVER_URL}/notebook/user/${id}`, {
+    method: "GET",
     credentials: "include",
   });
   return await res.json();
