@@ -55,7 +55,7 @@ export const getUser = async () => {
 
 export const getAllNotebooksById = async (
   id: string | undefined = "bf906298-12b3-4c67-ae95-f4fc4be1a953",
-): Promise<AllNotebookResponseType[]> => {
+) => {
   const res = await fetch(`${env.VITE_SERVER_URL}/document/list/${id}`, {
     method: "GET",
     credentials: "include",
@@ -88,6 +88,14 @@ export const getAllNotebookByUserId = async (
 ): Promise<GetAllNotebookByUserIdResponse> => {
   const res = await fetch(`${env.VITE_SERVER_URL}/notebook/user/${id}`, {
     method: "GET",
+    credentials: "include",
+  });
+  return await res.json();
+};
+
+export const deleteDocumentById = async (id: string) => {
+  const res = await fetch(`${env.VITE_SERVER_URL}/document/delete/${id}`, {
+    method: "DELETE",
     credentials: "include",
   });
   return await res.json();
