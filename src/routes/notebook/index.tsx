@@ -1,23 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import CreateNotebookForm from "@/components/forms/CreateNotebookForm";
-import { deleteNotebookById, getAllNotebookByUserId } from "@/api/query";
+import { deleteNotebookById, getMyNotebooks } from "@/api/query";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { getUser } from "@/api/query";
 
 export const Route = createFileRoute("/notebook/")({
   component: NotebookIndex,
-  beforeLoad: async () => {
-    const res = await getUser();
-    console.log(res);
-  },
 });
 
 function NotebookIndex() {
   const queryClient = useQueryClient();
   const { data, isLoading } = useQuery({
     queryKey: ["notebooks"],
-    queryFn: () => getAllNotebookByUserId(),
+    queryFn: () => getMyNotebooks(),
   });
 
   const { mutate, isPending } = useMutation({

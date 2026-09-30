@@ -31,7 +31,7 @@ const pdfSchema = z
     message: "The PDF must be smaller than 10 MB.",
   });
 
-const UploadForm = () => {
+const UploadForm = ({ notebookId }: { notebookId: string }) => {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -39,12 +39,12 @@ const UploadForm = () => {
 
   const uploadMutation = useMutation({
     mutationKey: ["upload-document"],
-    mutationFn: uploadPdf,
+    mutationFn: (file: File) => uploadPdf(file, notebookId),
     onSuccess: () => {
       setOpen(false);
       setSelectedFile(null);
       setError(null);
-      queryClient.invalidateQueries({ queryKey: ["notebooks"] });
+      queryClient.invalidateQueries({ queryKey: ["documents", notebookId] });
     },
   });
 

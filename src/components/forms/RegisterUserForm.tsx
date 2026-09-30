@@ -15,6 +15,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+import { userRegister } from "@/api/query";
+
 const registerSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters."),
   email: z.email("Please enter a valid email address."),
@@ -23,51 +25,18 @@ const registerSchema = z.object({
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
-type RegisterResponse = {
-  status?: string;
-  message?: string;
-  [key: string]: unknown;
-};
-
-async function registerUser(
-  values: RegisterFormValues,
-): Promise<RegisterResponse> {
-  const response = await fetch("http://localhost:8000/auth/register", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(values),
-  });
-
-  if (!response.ok) {
-    let message = `Registration failed with status ${response.status}.`;
-
-    try {
-      const error = await response.json();
-
-      if (typeof error?.detail === "string") {
-        message = error.detail;
-      } else if (typeof error?.message === "string") {
-        message = error.message;
-      }
-    } catch {
-      // Keep the default HTTP error message when the response isn't JSON.
-    }
-
-    throw new Error(message);
-  }
-
-  return response.json();
-}
-
 const RegisterUserForm = () => {
   const navigate = useNavigate();
 
   const registerMutation = useMutation({
     mutationKey: ["register-user"],
-    mutationFn: registerUser,
+    mutationFn: userRegister,
     onSuccess: (data) => {
+      if (!data.status) {
+        toast.error(data.message ?? "Registration failed.");
+        return;
+      }
+
       toast.success(data.message ?? "Registration successful. Please log in.");
       navigate({ to: "/auth/login" });
     },

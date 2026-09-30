@@ -11,11 +11,13 @@ function RouteComponent() {
 
   return (
     <div className="flex h-screen">
-      <LeftSideView />
+      {/* The notebook id comes from the route, not from a session lookup: it is
+          the notebook being viewed, which is not derivable from the user. */}
+      <LeftSideView notebookId={id} />
 
       <div>{id}</div>
 
-      <RightSideView />
+      <RightSideView notebookId={id} />
     </div>
   );
 }

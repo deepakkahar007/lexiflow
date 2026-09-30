@@ -18,55 +18,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+import { createNotebook } from "@/api/query";
+
 const notebookSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters."),
   description: z.string().optional(),
 });
 
 type NotebookFormValues = z.infer<typeof notebookSchema>;
-
-type CreateNotebookResponse = {
-  status: boolean;
-  id: string;
-  message?: string;
-};
-
-async function createNotebook(
-  values: NotebookFormValues,
-): Promise<CreateNotebookResponse> {
-  const body = {
-    user_id: "9d527de0-ec93-478b-b6b3-798727e26739",
-    ...values,
-  };
-
-  const response = await fetch("http://localhost:8000/notebook/create", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
-
-  if (!response.ok) {
-    let message = `Request failed with status ${response.status}.`;
-
-    try {
-      const error = await response.json();
-
-      if (typeof error?.detail === "string") {
-        message = error.detail;
-      } else if (typeof error?.message === "string") {
-        message = error.message;
-      }
-    } catch {
-      // Keep the default HTTP error message when the response isn't JSON.
-    }
-
-    throw new Error(message);
-  }
-
-  return response.json();
-}
 
 const CreateNotebookForm = () => {
   const navigate = useNavigate();
@@ -76,10 +35,10 @@ const CreateNotebookForm = () => {
     mutationKey: ["create-notebook"],
     mutationFn: createNotebook,
     onSuccess: (data) => {
-      if (data.status) {
+      if (data.status && data.id) {
         toast.success("Notebook created successfully.");
         setOpen(false);
-        navigate({ to: `/notebook/${data.id}` });
+        navigate({ to: "/notebook/$id", params: { id: data.id } });
       } else {
         toast.error(data.message ?? "Failed to create notebook.");
       }

@@ -1,5 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,8 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { userLogin } from "@/api/query";
+import { getUser, userLogin } from "@/api/query";
+import { useAuthStore } from "@/store/useAuthStore";
 import { Link, useNavigate } from "@tanstack/react-router";
 
 const loginSchema = z.object({
@@ -24,13 +26,16 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 const LoginForm = () => {
   const navigate = useNavigate();
+  const setUser = useAuthStore((state) => state.setUser);
+  const redirectAfterLogin = useAuthStore((state) => state.redirectAfterLogin);
+  const setRedirectAfterLogin = useAuthStore(
+    (state) => state.setRedirectAfterLogin,
+  );
+
   const loginMutation = useMutation({
     mutationKey: ["login-user"],
     mutationFn: async (params: { email: string; password: string }) =>
       await userLogin(params.email, params.password),
-    onSuccess: (data) => {
-      console.log("mutate success", data);
-    },
   });
 
   const form = useForm({
@@ -50,11 +55,29 @@ const LoginForm = () => {
         password: result.data.password,
       });
 
-      if (response.status) {
-        navigate({
-          to: "/notebook",
-        });
+      if (!response.status) {
+        form.setFieldMeta("email", (prev) => ({
+          ...prev,
+          errorMap: { ...prev.errorMap, onSubmit: response.message },
+        }));
+        return;
       }
+
+      // Login sets the cookie but returns no user payload, so read it back from
+      // /auth/me. That also stores it in localStorage for quick lookup.
+      try {
+        const user = await getUser();
+        setUser(user);
+      } catch {
+        toast.error("Signed in, but could not load your profile. Try again.");
+        return;
+      }
+
+      // Consume the saved target so a later sign-in does not reuse it.
+      const target = redirectAfterLogin ?? "/notebook";
+      setRedirectAfterLogin(null);
+
+      await navigate({ to: target });
     },
   });
 
